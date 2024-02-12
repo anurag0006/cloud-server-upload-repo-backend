@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const deploy_1 = __importDefault(require("./routes/deploy"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
@@ -18,4 +20,5 @@ app.get("/", (req, res) => {
 app.use("/api/deploy", deploy_1.default);
 app.listen(4000, () => {
     console.log("Server running on port 4000");
+    console.log(process.env.AWS_ACCESS_KEY);
 });

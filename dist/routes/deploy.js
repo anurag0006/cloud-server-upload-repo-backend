@@ -16,6 +16,12 @@ const utils_1 = require("../utils");
 const simple_git_1 = __importDefault(require("simple-git"));
 const path_1 = __importDefault(require("path"));
 const getAllFiles_1 = require("../getAllFiles");
+const getDirname_1 = require("../getDirname");
+const aws_1 = require("../aws");
+const redis_1 = require("redis");
+const publisher = (0, redis_1.createClient)();
+publisher.connect();
+console.log(__dirname);
 const router = require("express").Router();
 router.get("/", (req, res) => {
     res.send("req success");
@@ -25,10 +31,22 @@ router.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(repoUrl);
     const id = (0, utils_1.generate)();
     console.log(id);
-    yield (0, simple_git_1.default)().clone(repoUrl, path_1.default.join(__dirname, `output/${id}`));
-    const files = (0, getAllFiles_1.getAllFiles)(path_1.default.join(__dirname, `output/${id}`));
-    console.log(files);
-    res.json({ id: id }).status(200);
+    const dirname = (0, getDirname_1.GetDirName)();
+    console.log(dirname);
+    console.log(path_1.default.join(dirname, `output/${id}`));
+    try {
+        yield (0, simple_git_1.default)().clone(repoUrl, path_1.default.join(dirname, `output/${id}`));
+        const files = (0, getAllFiles_1.getAllFiles)(path_1.default.join(dirname, `output/${id}`));
+        console.log(files);
+        files.forEach((file) => __awaiter(void 0, void 0, void 0, function* () {
+            yield (0, aws_1.uploadFile)(file.slice(dirname.length + 1), file);
+        }));
+        publisher.lPush("build-queue", id);
+        res.json({ id: id }).status(200);
+    }
+    catch (err) {
+        console.log(err);
+    }
 }));
 module.exports = router;
 exports.default = router;
