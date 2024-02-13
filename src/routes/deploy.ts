@@ -35,6 +35,7 @@ router.post("/", async (req: any, res: any) => {
     });
 
     publisher.lPush("build-queue", id);
+    console.log("done");
 
     res.json({ id: id }).status(200);
   } catch (err) {

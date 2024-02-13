@@ -10,6 +10,8 @@ redis-cli
  127.0.0.1:6379> get user:1
 "Jane" -->
 
+LPUSH build-queue skk7aan69x
+
 sudo service redis-server stop
 
 <!-- https://developer.redis.com/create/windows/ -->
